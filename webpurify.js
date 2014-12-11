@@ -111,19 +111,26 @@ WebPurify.prototype.get = function(params, options, callback) {
     var query = this.request_base.path + '?' + querystring.stringify(this.query_base) + '&' + querystring.stringify(params);
     if (options !== null) query += '&' + querystring.stringify(options);
     this.request(this.request_base.host, query, 'GET', this.options.enterprise, function(error, response) {
-        if (!error && response) {
-            var rsp = response.rsp;
-            var status = rsp['@attributes'].stat;
-            // errors (to handle later)
-            if (status==='fail' && rsp.err instanceof Object) {
-                callback(rsp.err['@attributes'], null);
-            
-            // accepted
-            } else if (status==='ok') {
-                callback(null, WebPurify.prototype.strip(rsp));
+        try {
+            if (!error && response) {
+                var rsp = response.rsp;
+                var status = rsp['@attributes'].stat;
+                // errors (to handle later)
+                if (status==='fail' && rsp.err instanceof Object) {
+                    return callback(rsp.err['@attributes'], null);
+                
+                // accepted
+                } else if (status==='ok') {
+                    return callback(null, WebPurify.prototype.strip(rsp));
+                }
             }
-            
         }
+        catch (err) {
+            console.log('webpurify failed', err, response);
+            return callback(err);
+        }
+
+        return (error || 'wp failed');
     });
     
     return this;
