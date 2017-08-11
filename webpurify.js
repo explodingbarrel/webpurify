@@ -130,7 +130,7 @@ WebPurify.prototype.get = function(params, options, callback) {
             return callback(err);
         }
 
-        return (error || 'wp failed');
+        return callback(error || 'wp failed');
     });
     
     return this;
